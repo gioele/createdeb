@@ -1,0 +1,8 @@
+#!/bin/sh
+
+orig="$1"
+dest="$2"
+
+cp "$orig" "$dest"
+
+echo "Version: 1.`date +%Y%m%d`~dev`date +%H%M%S`" >> $dest

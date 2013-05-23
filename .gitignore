@@ -1,0 +1,4 @@
+*.debdesc
+!demo.debdesc
+*.equivs
+repo/
