@@ -5,4 +5,11 @@ dest="$2"
 
 cp "$orig" "$dest"
 
-echo "Version: 1.`date +%Y%m%d`~dev`date +%H%M%S`" >> $dest
+echo "Version: 1.`date +%Y%m%d`~dev`date +%H%M%S`" >> "$dest"
+echo "Architecture: all" >> "$dest"
+
+sed -e "s#Files: #Files: ./demo/files/#" < "$dest" > "$dest.tmp"
+mv "$dest.tmp" "$dest"
+
+grep -v "^Diff:" < "$dest" > "$dest.tmp"
+mv "$dest.tmp" "$dest"

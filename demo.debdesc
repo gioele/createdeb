@@ -1,1 +1,18 @@
-Package: distro
+Section: metapackages
+Priority: important
+
+Package: demo
+Maintainer: Mel Shmoe <mel@example.com>
+
+Depends:
+  libdemo,
+  demo-client
+
+Recommends:
+  demo-config
+
+Description: A demo package
+
+Files: maintenance.sh /usr/share/demo/maintenance.sh
+
+Diff: /etc/login.defs
