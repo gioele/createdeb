@@ -16,24 +16,54 @@ mv "$dest.tmp" "$dest"
 grep -v "^Diff:" < "$dest" > "$dest.tmp"
 mv "$dest.tmp" "$dest"
 
-diff_files="etc/login.defs" #FIXME
-for f in $diff_files ; do
-	patch="./$pkg/diff/$f.diff"
-	diff -u $pkg/diff/$f.orig $pkg/diff/$f > "$patch"
-	echo "Files: $patch /usr/share/" >> "$dest"
-done
-echo >> "$dest"
+diffable_files () {
+	cd $pkg/diff/
+	find -type f -name '*.orig' | sed -e 's#^\./##' | sed -e 's/\.orig$//'
+}
+
+patch_file_local () {
+	f=$1
+	echo "./$pkg/diff/$f.diff"
+}
+
+patch_file_install_dir () {
+	d=`dirname $1`
+	echo "/usr/share/$pkg/patches/$d/"
+}
+
+diffable=`diffable_files`
+
+patch_mapping () {
+	for f in $diffable ; do
+		patch=`patch_file_local $f`
+		patch_inst_dir=`patch_file_install_dir $f`
+		diff -u $pkg/diff/$f.orig $pkg/diff/$f > "$patch"
+		echo " $patch $patch_inst_dir"
+	done
+}
+
+if ! grep -q '^Files:' "$dest" ; then
+	echo "Files:`patch_mapping`" >> "$dest"
+	echo >> "$dest"
+else
+	line=`grep -n "^Files:" "$dest" | cut -d : -f 1`
+	len=`wc -l "$dest" | cut -d ' ' -f 1`
+	head -n $line "$dest" >> "$dest.tmp"
+	patch_mapping >> "$dest.tmp"
+	tail -n $(( $len - $line )) "$dest" >> "$dest.tmp"
+	mv "$dest.tmp" "$dest"
+fi
 
 echo "File: postinst" >> "$dest"
 echo "  #!/bin/sh -e" >> "$dest"
-for f in $diff_files ; do
-	echo "  patch -p0 -i /usr/share/$pkg/$f.diff" >> "$dest"
+for f in $diffable ; do
+	echo "  patch -p0 -i /usr/share/$pkg/patches/$f" >> "$dest"
 done
 echo >> "$dest"
 
 echo "File: prerm" >> "$dest"
 echo "  #!/bin/sh -e" >> "$dest"
-for f in $diff_files ; do
-	echo "  patch -R -p0 -i /usr/share/$pkg/$f.diff" >> "$dest"
+for f in $diffable ; do
+	echo "  patch -R -p0 -i /usr/share/$pkg/patches/$f.diff" >> "$dest"
 done
 echo >> "$dest"
