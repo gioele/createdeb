@@ -3,6 +3,8 @@
 orig="$1"
 dest="$2"
 
+pkg=`basename $orig .debdesc`
+
 cp "$orig" "$dest"
 
 echo "Version: 1.`date +%Y%m%d`~dev`date +%H%M%S`" >> "$dest"
@@ -13,3 +15,25 @@ mv "$dest.tmp" "$dest"
 
 grep -v "^Diff:" < "$dest" > "$dest.tmp"
 mv "$dest.tmp" "$dest"
+
+diff_files="etc/login.defs" #FIXME
+for f in $diff_files ; do
+	patch="./$pkg/diff/$f.diff"
+	diff -u $pkg/diff/$f.orig $pkg/diff/$f > "$patch"
+	echo "Files: $patch /usr/share/" >> "$dest"
+done
+echo >> "$dest"
+
+echo "File: postinst" >> "$dest"
+echo "  #!/bin/sh -e" >> "$dest"
+for f in $diff_files ; do
+	echo "  patch -p0 -i /usr/share/$pkg/$f.diff" >> "$dest"
+done
+echo >> "$dest"
+
+echo "File: prerm" >> "$dest"
+echo "  #!/bin/sh -e" >> "$dest"
+for f in $diff_files ; do
+	echo "  patch -R -p0 -i /usr/share/$pkg/$f.diff" >> "$dest"
+done
+echo >> "$dest"
