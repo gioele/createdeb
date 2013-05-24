@@ -18,10 +18,10 @@ and launch the Makefile using GNU Make.
     $ ls repo/
     demo-1.0_all.deb Packages.gz
 
-Once built the packages can be copied to a remote or local repository
+Once built, the packages can be copied to a remote or local repository
 using the Makefile target `upload`.
 
-    $ make upload
+    $ make upload REMOTE_REPO_DIR=mel@example.org:/var/repo
 
 
 Author

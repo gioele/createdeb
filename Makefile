@@ -26,7 +26,10 @@ clean:
 	rm -f $(debs)
 	rm -Rf $(REPO_DIR)
 
+.SECONDEXPANSION:
+
+REMOTE_REPO_DIR ?= $(error Required variable REMOTE_REPO_DIR not set)
 upload: all
-	echo rsync TODO
+	echo rsync -r --update --verbose --partial --progress $(REPO_DIR) $(REMOTE_REPO_DIR)
 
 .PHONY: all clean upload
