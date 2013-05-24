@@ -55,15 +55,15 @@ else
 fi
 
 echo "File: postinst" >> "$dest"
-echo "  #!/bin/sh -e" >> "$dest"
+echo " #!/bin/sh -e" >> "$dest"
 for f in $diffable ; do
-	echo "  patch -p0 -i /usr/share/$pkg/patches/$f" >> "$dest"
+	echo " patch -p0 -i /usr/share/$pkg/patches/$f" >> "$dest"
 done
 echo >> "$dest"
 
 echo "File: prerm" >> "$dest"
-echo "  #!/bin/sh -e" >> "$dest"
+echo " #!/bin/sh -e" >> "$dest"
 for f in $diffable ; do
-	echo "  patch -R -p0 -i /usr/share/$pkg/patches/$f.diff" >> "$dest"
+	echo " patch -R -p0 -i /usr/share/$pkg/patches/$f.diff" >> "$dest"
 done
 echo >> "$dest"
