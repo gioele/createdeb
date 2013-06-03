@@ -10,8 +10,7 @@ cp "$orig" "$dest"
 echo "Version: 1.`date +%Y%m%d`~dev`date +%H%M%S`" >> "$dest"
 echo "Architecture: all" >> "$dest"
 
-sed -e "s#Files: #Files: ./$pkg/files/#" < "$dest" > "$dest.tmp"
-mv "$dest.tmp" "$dest"
+sed -ie "s#Files: #Files: ./$pkg/files/#" "$dest"
 
 grep -v "^Diff:" < "$dest" > "$dest.tmp"
 mv "$dest.tmp" "$dest"
