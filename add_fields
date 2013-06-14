@@ -19,6 +19,7 @@ files_mapping () {
 }
 
 diffable_files () {
+	[ -d $pkg/diff/ ] || return
 	cd $pkg/diff/
 	find -type f -name '*.orig' | sed -e 's#^\./##' | sed -e 's/\.orig$//'
 }
@@ -44,24 +45,28 @@ patch_mapping () {
 	done
 }
 
-echo -n "Files:" >> "$dest"
-echo "`files_mapping`" >> "$dest"
-echo "`patch_mapping`" >> "$dest"
-echo >> "$dest"
+if [ -n "$to_copy" ] || [ -n "$diffable" ] ; then
+	echo -n "Files:" >> "$dest"
+	[ -n "$to_copy" ] && echo "`files_mapping`" >> "$dest"
+	[ -n "$diffable" ] && echo "`patch_mapping`" >> "$dest"
+	echo >> "$dest"
+fi
 
-echo "File: postinst" >> "$dest"
-echo " #!/bin/sh -e" >> "$dest"
-for f in $diffable ; do
-	echo " patch -p0 -i /usr/share/$pkg/patches/$f" >> "$dest"
-done
-echo >> "$dest"
+if [ -n "$diffable" ] ; then
+	echo "File: postinst" >> "$dest"
+	echo " #!/bin/sh -e" >> "$dest"
+	for f in $diffable ; do
+		echo " patch -p0 -i /usr/share/$pkg/patches/$f" >> "$dest"
+	done
+	echo >> "$dest"
 
-echo "File: prerm" >> "$dest"
-echo " #!/bin/sh -e" >> "$dest"
-for f in $diffable ; do
-	echo " patch -R -p0 -i /usr/share/$pkg/patches/$f.diff" >> "$dest"
-done
-echo >> "$dest"
+	echo "File: prerm" >> "$dest"
+	echo " #!/bin/sh -e" >> "$dest"
+	for f in $diffable ; do
+		echo " patch -R -p0 -i /usr/share/$pkg/patches/$f.diff" >> "$dest"
+	done
+	echo >> "$dest"
+fi
 
 grep -v "^Copy:" "$dest" > "$dest.tmp"
 mv "$dest.tmp" "$dest"
