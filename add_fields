@@ -40,7 +40,7 @@ patch_mapping () {
 	for f in $diffable ; do
 		patch=`patch_file_local $f`
 		patch_inst_dir=`patch_file_install_dir $f`
-		diff -u $pkg/diff/$f.orig $pkg/diff/$f > "$patch"
+		diff -u $pkg/diff/$f.orig $pkg/diff/$f | sed -e "s#$pkg/diff##" > "$patch"
 		echo " $patch $patch_inst_dir"
 	done
 }
