@@ -56,7 +56,7 @@ if [ -n "$diffable" ] ; then
 	echo "File: postinst" >> "$dest"
 	echo " #!/bin/sh -e" >> "$dest"
 	for f in $diffable ; do
-		echo " patch -p0 -i /usr/share/$pkg/patches/$f" >> "$dest"
+		echo " patch -p0 -i /usr/share/$pkg/patches/$f.diff" >> "$dest"
 	done
 	echo >> "$dest"
 
