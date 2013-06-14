@@ -1,3 +1,5 @@
+MF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+
 REPO_DIR := repo
 
 debs := $(addprefix $(REPO_DIR)/,$(patsubst %.debdesc,%.deb,$(wildcard *.debdesc)))
@@ -9,7 +11,7 @@ $(REPO_DIR):
 	mkdir -p $@
 
 %.equivs: %.debdesc
-	./add_fields $< $@
+	$(MF_DIR)/add_fields $< $@
 
 %.deb: %.equivs
 	equivs-build $<
