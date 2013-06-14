@@ -1,5 +1,5 @@
 *.debdesc
-!demo.debdesc
+!demo-*.debdesc
 *.equivs
 *.diff
 repo/
