@@ -9,6 +9,11 @@ Internally `createdeb` acts as a frontend to `equivs-build`.
 Usage
 -----
 
+**equivs-build (up to version 2.0.9 included) has a bug that prevents
+`createdeb` from producing working packages. Please follow the
+[workaround instructions](https://github.com/gioele/createdeb/issues/1)
+to avoid problems.**
+
 Put all your `debdesc` package descriptors in the `createdeb` directory
 and launch the Makefile using GNU Make.
 
