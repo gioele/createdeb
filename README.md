@@ -102,19 +102,22 @@ Creating deb packages
 [workaround instructions](https://github.com/gioele/createdeb/issues/1)
 to avoid problems.**
 
-Put all your `debdesc` package descriptors in the `createdeb` directory
-and launch the Makefile using GNU Make.
+Put all your `debdesc` package descriptors in a directoy, then use GNU
+make to run the Makefile found in the directory where you downloaded
+`createdeb`.
 
-    $ ls *.debdesc
-    demo.debdesc
-    $ make
+    $ ls .debdesc
+    demo-config.debdesc
+    demo-config/
+    $ alias createdeb="make -f ~/apps/createdeb/Makefile"
+    $ createdeb
     $ ls repo/
     demo-1.0_all.deb Packages.gz
 
 Once built, the packages can be copied to a remote or local repository
-using the Makefile target `upload`.
+using the target `upload`.
 
-    $ make upload REMOTE_REPO_DIR=mel@example.org:/var/repo
+    $ createdeb upload REMOTE_REPO_DIR=mel@example.org:/var/repo
 
 
 Author
