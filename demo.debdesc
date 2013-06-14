@@ -13,6 +13,7 @@ Recommends:
 
 Description: A demo package
 
-Files: maintenance.sh /usr/share/demo/
+Copy: maintenance.sh /usr/share/demo/
+Copy: check.sh /usr/share/demo/
 
 Diff: /etc/login.defs

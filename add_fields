@@ -10,10 +10,13 @@ cp "$orig" "$dest"
 echo "Version: 1.`date +%Y%m%d`~dev`date +%H%M%S`" >> "$dest"
 echo "Architecture: all" >> "$dest"
 
-sed -ie "s#Files: #Files: ./$pkg/files/#" "$dest"
+to_copy=`cat $dest | grep "^Copy: " | sed -e 's/Copy: //'`
 
-grep -v "^Diff:" < "$dest" > "$dest.tmp"
-mv "$dest.tmp" "$dest"
+files_mapping () {
+	echo "$to_copy" | while read f ; do
+		echo " ./$pkg/files/$f"
+	done
+}
 
 diffable_files () {
 	cd $pkg/diff/
@@ -41,17 +44,10 @@ patch_mapping () {
 	done
 }
 
-if ! grep -q '^Files:' "$dest" ; then
-	echo "Files:`patch_mapping`" >> "$dest"
-	echo >> "$dest"
-else
-	line=`grep -n "^Files:" "$dest" | cut -d : -f 1`
-	len=`wc -l "$dest" | cut -d ' ' -f 1`
-	head -n $line "$dest" >> "$dest.tmp"
-	patch_mapping >> "$dest.tmp"
-	tail -n $(( $len - $line )) "$dest" >> "$dest.tmp"
-	mv "$dest.tmp" "$dest"
-fi
+echo -n "Files:" >> "$dest"
+echo "`files_mapping`" >> "$dest"
+echo "`patch_mapping`" >> "$dest"
+echo >> "$dest"
 
 echo "File: postinst" >> "$dest"
 echo " #!/bin/sh -e" >> "$dest"
@@ -66,3 +62,10 @@ for f in $diffable ; do
 	echo " patch -R -p0 -i /usr/share/$pkg/patches/$f.diff" >> "$dest"
 done
 echo >> "$dest"
+
+grep -v "^Copy:" "$dest" > "$dest.tmp"
+mv "$dest.tmp" "$dest"
+
+grep -v "^Diff:" "$dest" > "$dest.tmp"
+mv "$dest.tmp" "$dest"
+
