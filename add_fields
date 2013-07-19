@@ -7,7 +7,13 @@ pkg=`basename $orig .debdesc`
 
 cp "$orig" "$dest"
 
-echo "Version: 1.`date +%Y%m%d`~dev`date +%H%M%S`" >> "$dest"
+version="1"
+if grep -q '^Version:' $orig ; then
+	version=`cat $orig | grep '^Version:' | cut -d: -f2`
+	grep -v "^Version:" $dest > $dest.tmp
+	mv $dest.tmp $dest
+fi
+echo "Version: $version~dev`date +%Y%m%d`.`date +%H%M%S`" >> "$dest"
 echo "Architecture: all" >> "$dest"
 
 to_copy=`cat $dest | grep "^Copy: " | sed -e 's/Copy: //'`
