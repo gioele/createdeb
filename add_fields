@@ -65,6 +65,8 @@ if [ -n "$to_copy" ] || [ -n "$diffable" ] ; then
 fi
 
 if [ -n "$diffable" ] ; then
+	echo "Pre-Depends: patch" >> "$dest"
+
 	echo "File: postinst" >> "$dest"
 	echo " #!/bin/sh -e" >> "$dest"
 	for f in $diffable ; do
