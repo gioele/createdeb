@@ -19,8 +19,14 @@ echo "Architecture: all" >> "$dest"
 to_copy=`cat $dest | grep "^Copy: " | sed -e 's/Copy: //'`
 
 files_mapping () {
+	if [ -d "./$pkg/files" ] ; then
+		files_path="./$pkg/files"
+	else
+		files_path="./$pkg"
+	fi
+
 	echo "$to_copy" | while read f ; do
-		echo " ./$pkg/files/$f"
+		echo " $files_path/$f"
 	done
 }
 
