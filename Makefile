@@ -10,12 +10,16 @@ all: $(debs) $(summary)
 $(REPO_DIR):
 	mkdir -p $@
 
-%.equivs: %.debdesc
+.SECONDEXPANSION:
+%.equivs: %.debdesc $$(call find, $(basename %), *)
 	$(MF_DIR)/add_fields $< $@
 
 %.deb: %.equivs
 	equivs-build $<
 	touch $@
+
+
+find = $(foreach dir,$(1),$(foreach d,$(wildcard $(dir)/*),$(call find,$(d),$(2))) $(wildcard $(dir)/$(strip $(2))))
 
 $(REPO_DIR)/%.deb: %.deb | $(REPO_DIR)
 	mv *.deb $(REPO_DIR)
