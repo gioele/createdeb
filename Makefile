@@ -19,7 +19,7 @@ $(REPO_DIR):
 	touch $@
 
 
-find = $(foreach dir,$(1),$(foreach d,$(wildcard $(dir)/*),$(call find,$(d),$(2))) $(wildcard $(dir)/$(strip $(2))))
+find = $(wildcard $(1)/$(strip $(2))) $(foreach d,$(wildcard $(1)/*),$(call find,$(d),$(2)))
 
 $(REPO_DIR)/%.deb: %.deb | $(REPO_DIR)
 	mv *.deb $(REPO_DIR)
@@ -31,8 +31,6 @@ clean:
 	rm -f $(summary)
 	rm -f $(debs)
 	rm -Rf $(REPO_DIR)
-
-.SECONDEXPANSION:
 
 REMOTE_REPO_DIR ?= $(error Required variable REMOTE_REPO_DIR not set)
 upload: all
