@@ -16,8 +16,8 @@ $(REPO_DIR):
 
 %.deb: %.equivs
 	equivs-build $<
+	rm $(call find,$(basename $<)/diff,*.diff)
 	touch $@
-
 
 find = $(wildcard $(1)/$(strip $(2))) $(foreach d,$(wildcard $(1)/*),$(call find,$(d),$(2)))
 
