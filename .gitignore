@@ -1,0 +1,3 @@
+*.debdesc
+!demo-*.debdesc
+*.deb
