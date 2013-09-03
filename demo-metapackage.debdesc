@@ -1,0 +1,15 @@
+Section: metapackages
+Priority: important
+
+Package: demo-metapackage
+Maintainer: Mel Shmoe <mel@example.com>
+
+Description: A demo package
+
+Depends:
+ libdemo,
+ demo-client
+
+Recommends:
+ demo-config
+

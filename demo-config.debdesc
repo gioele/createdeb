@@ -1,0 +1,16 @@
+Section: admin
+Priority: important
+
+Package: demo-config
+Maintainer: Mel Shmoe <mel@example.com>
+
+Description: A demo configuration package
+
+Depends:
+ demo-metapackage
+
+
+Copy: maintenance.sh /usr/share/demo-config/
+Copy: check.sh /usr/share/demo-config/
+
+Diff: /etc/login.defs
