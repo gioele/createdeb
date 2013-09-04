@@ -97,10 +97,6 @@ class Createdeb::CLI
 #		FileUtils.remove_entry_secure(@tmp_dir)
 	end
 
-	def copy_template!
-		FileUtils.cp_r("/usr/share/equivs/template/debian", @work_dir)
-	end
-
 	def copy_files!
 		FileUtils.mkdir_p("#{@work_dir}/files")
 
@@ -129,6 +125,25 @@ pp @to_diff
 			FileUtils.mkdir_p(File.dirname(patch_path))
 			File.open(patch_path, "w") { |file| file << patch }
 		end
+	end
+
+	def create_fixed_debian_files!
+		deb_dir = @work_dir + '/debian'
+		FileUtils.mkdir(deb_dir)
+
+		FileUtils.mkdir(deb_dir + '/source')
+		File.open(deb_dir + '/source' + '/format', 'w') { |f| f << "1.0\n" }
+
+		File.open(deb_dir + '/compat', 'w') { |f| f << "7\n" }
+
+		File.open(deb_dir + '/rules', 'w') do |f|
+			f << "#!/usr/bin/make -f\n"
+			f << "\n"
+			f << "%:\n"
+			f << "\tdh $@\n"
+
+		end
+		FileUtils.chmod(0o755, deb_dir + '/rules')
 	end
 
 	def create_maintscripts!
@@ -214,9 +229,10 @@ pp @to_diff
 		begin
 			setup!
 
-			copy_template! # FIXME: remove
 			copy_files!
 			create_patches!
+
+			create_fixed_debian_files!
 
 			create_maintscripts!
 			create_install_file!
