@@ -4,10 +4,8 @@ require 'optparse'
 require 'tmpdir'
 require 'logger'
 
-require 'pp'
-
 $log = Logger.new(STDOUT)
-$log.level = Logger::DEBUG
+$log.level = Logger::WARN
 
 module Createdeb; end
 
@@ -131,11 +129,17 @@ class Createdeb::CLI
 		@options = {}
 
 		parse!(params)
+		check_options!
+		setup_options!
 	end
 
 	def parse!(params)
 		OptionParser.new do |opts|
 			opts.banner = "Usage: createdeb [options] FILE"
+
+			opts.on('-d', '--debug', "Show debug output") do
+				@options[:debug] = true
+			end
 
 			opts.on('-t', '--timestamp-version', "Add timestamp to the version number") do
 				@options[:timestamp] = true # TODO: use
@@ -150,6 +154,15 @@ class Createdeb::CLI
 		@pkg = @input_file.sub('.debdesc', '')
 
 		@orig_dir ||= @pkg
+	end
+
+	def check_options!
+	end
+
+	def setup_options!
+		if @options[:debug]
+			$log.level = Logger::DEBUG
+		end
 	end
 
 	def setup!
@@ -168,10 +181,8 @@ class Createdeb::CLI
 		FileUtils.mkdir_p("#{@work_dir}/files")
 
 		@to_copy = @debdesc.fields('Copy')
-pp @to_copy
 		@to_copy.each do |field|
 			file, dest = field.pair_value
-p dest
 			# TODO: recreate directory structure, otherwise only one file with a certain name is allowed
 			FileUtils.cp("#{@orig_dir}/files/#{file}", "#{@work_dir}/files/")
 		end
@@ -179,7 +190,6 @@ p dest
 
 	def create_patches!
 		@to_diff = @debdesc.fields('Diff')
-pp @to_diff
 		@to_diff.each do |field|
 			file = field.simple_value
 			diff_cmd = ["diff", "-u2", "#{@orig_dir}/diff/#{file}.orig", "#{@orig_dir}/diff/#{file}"]
@@ -280,11 +290,14 @@ pp @to_diff
 	def build_package!
 		Dir.chdir(@work_dir) do
 			build_cmd = ['dpkg-buildpackage', '-rfakeroot']
-			IO.popen(build_cmd.join(' ')) do |io| puts io.read end
+			IO.popen(build_cmd.join(' ')) do |io|
+				output = io.read
+				# TODO: write in log
+				$log.debug output
+			end
 		end
 
 #		if !$?.success? then raise("Error during build") end
-		p $?
 	end
 
 	def move_package!
