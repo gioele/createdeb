@@ -81,8 +81,6 @@ class Createdeb::Debdesc
 	end
 
 	def add_to_field_folded(field_name, value, separator)
-		p field_name
-		p value
 		if !has_field(field_name)
 			@fields << Field.new(field_name, [value])
 			return
