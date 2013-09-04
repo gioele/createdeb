@@ -85,6 +85,19 @@ class Createdeb::DebDesc
 		return fields.first
 	end
 
+	def add_to_field_folded(field_name, value, separator)
+		p field_name
+		p value
+		if !has_field(field_name)
+			@fields << Field.new(field_name, [value])
+			return
+		end
+
+		f = field(field_name)
+		f.lines << separator + "\n"
+		f.lines << value
+	end
+
 	class Field
 		def initialize(name, lines)
 			@name = name
@@ -225,22 +238,24 @@ class Createdeb::CLI
 
 	def create_maintscripts!
 		# TODO: support for user-defined maintscript
-		# TODO: pre-depend on patch
+		if @to_diff.empty?
+			return
+		end
 
-		maintscripts_dir = "#{@work_dir}/maintscripts"
+		@debdesc.add_to_field_folded('Pre-Depends', 'patch', ',')
+
 		maintscripts_dir = "#{@work_dir}/debian"
-		unless @to_diff.empty?
-			FileUtils.mkdir_p(maintscripts_dir)
 
-			File.open("#{maintscripts_dir}/postinst", "w") do |f|
-				f << "#!/bin/sh\n"
-				f << @to_diff.map { |d| "patch -p0 -i /usr/share/#{@pkg}/patches/#{d.simple_value}.diff\n" }
-			end
+		FileUtils.mkdir_p(maintscripts_dir)
 
-			File.open("#{maintscripts_dir}/prerm", "w") do |f|
-				f << "#!/bin/sh\n"
-				f << @to_diff.map { |d| "patch -R -p0 -i /usr/share/#{@pkg}/patches/#{d.simple_value}.diff\n" }
-			end
+		File.open("#{maintscripts_dir}/postinst", "w") do |f|
+			f << "#!/bin/sh\n"
+			f << @to_diff.map { |d| "patch -p0 -i /usr/share/#{@pkg}/patches/#{d.simple_value}.diff\n" }
+		end
+
+		File.open("#{maintscripts_dir}/prerm", "w") do |f|
+			f << "#!/bin/sh\n"
+			f << @to_diff.map { |d| "patch -R -p0 -i /usr/share/#{@pkg}/patches/#{d.simple_value}.diff\n" }
 		end
 	end
 
@@ -276,7 +291,7 @@ class Createdeb::CLI
 
 			f << "Package: #{@pkg}\n"
 			f << "Architecture: all\n"
-			f << "Pre-Depends: patch\n" unless @to_diff.empty?
+			f << "Pre-Depends: #{@debdesc.field('Pre-Depends').folded_value}\n" unless @to_diff.empty?
 			f << "Depends: #{@debdesc.field('Depends').folded_value}\n"
 			f << "Description: fake\n"
 		end
