@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'optparse'
 require 'tmpdir'
 require 'logger'
 
@@ -127,16 +128,28 @@ end
 
 class Createdeb::CLI
 	def initialize(params)
+		@options = {}
+
 		parse!(params)
 	end
 
 	def parse!(params)
-		# TODO: use parser
-		@input_file = params[0]
-		@pkg = params[0].sub('.debdesc', '')
-		@orig_dir = @pkg
+		OptionParser.new do |opts|
+			opts.banner = "Usage: createdeb [options] FILE"
 
-		# TODO --add-timestamp-version, -t
+			opts.on('-t', '--timestamp-version', "Add timestamp to the version number") do
+				@options[:timestamp] = true # TODO: use
+			end
+
+			opts.on_tail('-h', '--help', "Display help text and usage") { puts opts; exit }
+
+			opts.parse!
+		end
+
+		@input_file = ARGV.first
+		@pkg = @input_file.sub('.debdesc', '')
+
+		@orig_dir ||= @pkg
 	end
 
 	def setup!
