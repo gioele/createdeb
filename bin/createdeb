@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require 'createdeb/cli'
+
+log = Logger.new(STDOUT)
+log.level = Logger::WARN
+
+app = Createdeb::CLI.new(ARGV, log)
+app.run!
