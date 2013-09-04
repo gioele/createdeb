@@ -186,7 +186,7 @@ pp @to_diff
 		FileUtils.mkdir(deb_dir)
 
 		FileUtils.mkdir(deb_dir + '/source')
-		File.open(deb_dir + '/source' + '/format', 'w') { |f| f << "1.0\n" }
+		File.open(deb_dir + '/source' + '/format', 'w') { |f| f << "3.0 (native)\n" }
 
 		File.open(deb_dir + '/compat', 'w') { |f| f << "9\n" }
 
