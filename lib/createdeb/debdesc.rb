@@ -3,8 +3,15 @@
 module Createdeb; end
 
 class Createdeb::Debdesc
-	def initialize(filename, log)
-		@filename = filename
+	def initialize(filename_or_content, log)
+		if File.exists?(filename_or_content)
+			@filename = filename_or_content
+			@content = File.open(@filename).lines.to_a
+		else
+			@filename = nil
+			@content = filename_or_content.split("\n")
+		end
+
 		@log = log
 
 		@fields = []
@@ -17,7 +24,7 @@ class Createdeb::Debdesc
 		name = nil
 		prev_lines = []
 
-		lines = File.open(@filename).lines.to_a + ["\n"]
+		lines = @content + ["\n"]
 		lines.each_with_index do |line, idx|
 			first = line[0..0]
 
