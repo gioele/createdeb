@@ -37,9 +37,9 @@ class Createdeb::CLI
 		end
 
 		@input_file = ARGV.first
-		@pkg = @input_file.sub('.debdesc', '')
+		@pkg = @input_file.split('/').last.sub('.debdesc', '')
 
-		@orig_dir ||= @pkg
+		@orig_dir ||= @input_file.sub('.debdesc', '')
 	end
 
 	def check_options!
