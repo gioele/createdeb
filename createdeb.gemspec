@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
 	spec.version       = "0.0.1.dev"
 	spec.authors       = ["Gioele Barabucci"]
 	spec.email         = ["gioele@svario.it"]
-	spec.description   = %q{TODO: Write a gem description}
-	spec.summary       = %q{TODO: Write a gem summary}
+	spec.summary       = "A simple way to create Debian packages"
+	spec.description   = "createdeb generates Debian packages from simple package descriptors."
 	spec.homepage      = "http://svario.it/createdeb"
 	spec.license       = "CC0"
 
