@@ -166,7 +166,7 @@ class Createdeb::CLI
 			f << "Architecture: all\n"
 			f << "Pre-Depends: #{@debdesc.field('Pre-Depends').folded_value}\n" unless @to_diff.empty?
 			f << "Depends: #{@debdesc.field('Depends').folded_value}\n"
-			f << "Description: #{@debdesc.field('Description').multiline_value}\n"
+			f << "Description: #{description}\n"
 		end
 	end
 
@@ -230,5 +230,9 @@ class Createdeb::CLI
 
 	def maintainer
 		return @debdesc.field('Maintainer').simple_value
+	end
+
+	def description
+		return @debdesc.field('Description').multiline_value # FIXME: check with multiple lines
 	end
 end

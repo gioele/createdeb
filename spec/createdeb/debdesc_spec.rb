@@ -16,4 +16,12 @@ describe Createdeb::Debdesc do
 		expect(d.field('A').folded_value).to eq("a b c")
 		expect(d.field('B').folded_value).to eq('d')
 	end
+
+	it "parses multiline fields" do
+		content = "A: a\n b\n  c\n d\nB: e"
+		d = Createdeb::Debdesc.new(content, Logger.new("/dev/null"))
+
+		expect(d.field('A').multiline_value).to eq(['a', "b\n c\nd\n"])
+		expect(d.field('B').multiline_value).to eq(['e', ''])
+	end
 end
