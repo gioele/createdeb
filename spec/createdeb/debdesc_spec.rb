@@ -33,4 +33,14 @@ describe Createdeb::Debdesc do
 		expect(d.field('B').lines).to eq([" b"])
 		expect(d.fields('C')).to be_empty
 	end
+
+	it "allows fields to be repeated" do
+		content = "A: a\nA: b\nA: c"
+		d = Createdeb::Debdesc.new(content, Logger.new("/dev/null"))
+
+		expect(d.fields('A')).to have(3).fields
+		expect(d.fields('A')[0].simple_value).to eq('a')
+		expect(d.fields('A')[1].simple_value).to eq('b')
+		expect(d.fields('A')[2].simple_value).to eq('c')
+	end
 end
