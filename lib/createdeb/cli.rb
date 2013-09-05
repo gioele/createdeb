@@ -60,7 +60,7 @@ class Createdeb::CLI
 	end
 
 	def tear_down!
-#		FileUtils.remove_entry_secure(@tmp_dir)
+		FileUtils.remove_entry_secure(@tmp_dir) unless @options[:debug]
 	end
 
 	def copy_files!
