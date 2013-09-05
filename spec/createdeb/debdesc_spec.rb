@@ -24,4 +24,13 @@ describe Createdeb::Debdesc do
 		expect(d.field('A').multiline_value).to eq(['a', "b\n c\nd\n"])
 		expect(d.field('B').multiline_value).to eq(['e', ''])
 	end
+
+	it "ignores comments" do
+		content = "#A: a\nB: b\n#C: c"
+		d = Createdeb::Debdesc.new(content, Logger.new("/dev/null"))
+
+		expect(d.fields('A')).to be_empty
+		expect(d.field('B').lines).to eq([" b"])
+		expect(d.fields('C')).to be_empty
+	end
 end
