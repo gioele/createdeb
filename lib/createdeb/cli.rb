@@ -77,8 +77,11 @@ class Createdeb::CLI
 		@to_copy = @debdesc.fields('Copy')
 		@to_copy.each do |field|
 			file, dest = field.pair_value
-			# TODO: recreate directory structure, otherwise only one file with a certain name is allowed
-			FileUtils.cp("#{@orig_dir}/files/#{file}", "#{@work_dir}/files/")
+			# TODO: test that different files with the same name do not get overwritten
+			rel_dir = File.dirname(file)
+			dest_dir = "#{@work_dir}/files/#{rel_dir}/"
+			FileUtils.mkdir_p(dest_dir)
+			FileUtils.cp("#{@orig_dir}/files/#{file}", dest_dir)
 		end
 	end
 
