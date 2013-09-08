@@ -26,6 +26,18 @@ class Createdeb::CLI
 		OptionParser.new do |opts|
 			opts.banner = "Usage: createdeb [options] FILE"
 
+			opts.on('-b', '--binary', "Perform only a binary build (default)") do
+				@options[:full] = false
+			end
+
+			opts.on('-f', '--full', "Perform a full build (build both binary and source packages)") do
+				@options[:full] = true
+			end
+
+			opts.on('-s', '--sign', "Sign package") do
+				@options[:sign] = true
+			end
+
 			opts.on('-d', '--debug', "Show debug output") do
 				@options[:debug] = true
 			end
@@ -182,8 +194,18 @@ class Createdeb::CLI
 	end
 
 	def build_package!
+		opts = []
+
+		opts << '-b' if !@options[:full]
+		opts << '-F' if @options[:full]
+
+		if !@options[:sign]
+			opts << '-us'
+			opts << '-uc'
+		end
+
 		Dir.chdir(@work_dir) do
-			build_cmd = ['dpkg-buildpackage', '-rfakeroot']
+			build_cmd = ['dpkg-buildpackage', '-rfakeroot'] + opts
 			IO.popen(build_cmd.join(' ')) do |io|
 				output = io.read
 				# TODO: write in log
