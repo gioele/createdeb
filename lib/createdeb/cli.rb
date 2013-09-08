@@ -185,7 +185,9 @@ class Createdeb::CLI
 			end
 		end
 
-#		if !$?.success? then raise("Error during build") end
+		if ![0,1].include?($?.exitstatus)
+			raise "Error during build, see log"
+		end
 	end
 
 	def move_package!
