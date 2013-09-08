@@ -34,6 +34,11 @@ class Createdeb::CLI
 			opts.on_tail('-h', '--help', "Display help text and usage") { puts opts; exit }
 
 			opts.parse!
+
+			if ARGV.empty?
+				puts opts
+				exit
+			end
 		end
 
 		@input_file = ARGV.first
