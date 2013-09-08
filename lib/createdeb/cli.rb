@@ -213,7 +213,7 @@ class Createdeb::CLI
 			end
 		end
 
-		if ![0,1].include?($?.exitstatus)
+		if !$?.success?
 			raise "Error during build, see log"
 		end
 	end
