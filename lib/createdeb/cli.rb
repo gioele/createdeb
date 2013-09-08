@@ -161,7 +161,7 @@ class Createdeb::CLI
 			f << "Source: #{@pkg}\n"
 			f << "Section: misc\n"
 			f << "Priority: optional\n"
-			f << "Build-Depends: debhelper (>=7)\n"
+			f << "Build-Depends: debhelper (>=9)\n"
 			f << "Maintainer: #{maintainer}\n"
 			f << "Standards-Version: 3.9.2\n"
 
