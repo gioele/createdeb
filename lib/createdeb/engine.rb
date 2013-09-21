@@ -167,8 +167,19 @@ class Createdeb::Engine
 	end
 
 	def move_package!
-		deb_name = "#{@pkg}_#{version}_all.deb"
-		FileUtils.cp("#{@tmp_dir}/#{deb_name}", Dir.pwd)
+		base_name = @pkg + '_' + version
+
+		deb_name = "#{base_name}_#{target_arch}.deb"
+		changes_name = "#{base_name}_#{build_arch}.changes"
+		dsc_name = base_name + '.dsc'
+		tar_name = base_name + '.tar.gz'
+
+		files = [deb_name]
+		files += [changes_name, dsc_name, tar_name] if @options[:full]
+
+		files.each do |file|
+			FileUtils.cp("#{@tmp_dir}/#{file}", Dir.pwd)
+		end
 	end
 
 	def run!
@@ -216,5 +227,13 @@ class Createdeb::Engine
 
 	def description
 		return @debdesc.field('Description').multiline_value # FIXME: check with multiple lines
+	end
+
+	def target_arch
+		return 'all'
+	end
+
+	def build_arch
+		return `dpkg-architecture -qDEB_BUILD_ARCH`.strip
 	end
 end

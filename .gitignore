@@ -3,4 +3,8 @@
 
 *.debdesc
 !demo-*.debdesc
+
+*.changes
 *.deb
+*.dsc
+*.tar.*
