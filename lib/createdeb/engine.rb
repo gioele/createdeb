@@ -134,7 +134,7 @@ class Createdeb::Engine
 			f << "\n"
 
 			f << "Package: #{@pkg}\n"
-			f << "Architecture: all\n"
+			f << "Architecture: #{target_arch}\n"
 			f << "Pre-Depends: #{@debdesc.field('Pre-Depends').folded_value}\n" unless @to_diff.empty?
 			f << "Depends: #{@debdesc.field('Depends').folded_value}\n"
 			f << "Description: #{description}\n"
