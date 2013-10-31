@@ -89,25 +89,41 @@ class Createdeb::Engine
 	end
 
 	def create_maintscripts!
-		# TODO: support for user-defined maintscript
-		if @to_diff.empty?
-			return
+		user_postinst_script = @debdesc.fields('File').find { |f| f.lines.first.strip == 'postinst' }
+		user_prerm_script    = @debdesc.fields('File').find { |f| f.lines.first.strip == 'prerm' }
+		user_postrm_script   = @debdesc.fields('File').find { |f| f.lines.first.strip == 'postrm' }
+
+		postinst_script = user_postinst_script.multiline_value[1] unless user_postinst_script.nil?
+		prerm_script    = user_prerm_script.multiline_value[1] unless user_prerm_script.nil?
+		postrm_script   = user_postrm_script.multiline_value[1] unless user_postrm_script.nil?
+
+		if !@to_diff.empty?
+			if !postinst_script.nil? && !prerm_script.nil?
+				raise "Cannot mix postinst/prerm scripts and Diff directives"
+			end
+
+			postinst_script = "#!/bin/sh\n" + @to_diff.map { |d| "patch -p0 -i /usr/share/#{pkg_name}/patches/#{d.simple_value}.diff\n" }.join('')
+			prerm_script    = "#!/bin/sh\n" + @to_diff.map { |d| "patch -R -p0 -i /usr/share/#{pkg_name}/patches/#{d.simple_value}.diff\n" }.join('')
+
+			@debdesc.add_to_field_folded('Pre-Depends', 'patch', ',')
 		end
 
-		@debdesc.add_to_field_folded('Pre-Depends', 'patch', ',')
+		scripts = {
+			'postinst' => postinst_script,
+			'prerm' => prerm_script,
+			'postrm' => postrm_script,
+		}
 
 		maintscripts_dir = "#{@work_dir}/debian"
 
-		FileUtils.mkdir_p(maintscripts_dir)
+		scripts.each do |script, content|
+			if content.nil?
+				next
+			end
 
-		File.open("#{maintscripts_dir}/postinst", "w") do |f|
-			f << "#!/bin/sh\n"
-			f << @to_diff.map { |d| "patch -p0 -i /usr/share/#{pkg_name}/patches/#{d.simple_value}.diff\n" }
-		end
+			FileUtils.mkdir_p(maintscripts_dir)
 
-		File.open("#{maintscripts_dir}/prerm", "w") do |f|
-			f << "#!/bin/sh\n"
-			f << @to_diff.map { |d| "patch -R -p0 -i /usr/share/#{pkg_name}/patches/#{d.simple_value}.diff\n" }
+			File.open("#{maintscripts_dir}/#{script}", "w") { |f| f << content }
 		end
 	end
 

@@ -140,7 +140,7 @@ class Createdeb::Debdesc
 			first_line = lines.first.strip
 			other_lines = lines[1..-1]
 
-			content = other_lines.map { |l| l[1..-1] + "\n" }.join('')
+			content = other_lines.map { |l| l[1..-1].strip + "\n" }.join('')
 
 			return [first_line, content]
 		end
