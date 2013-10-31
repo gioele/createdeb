@@ -37,11 +37,18 @@ class Createdeb::Engine
 		@to_copy = @debdesc.fields('Copy')
 		@to_copy.each do |field|
 			file, dest = field.pair_value
+
+			orig_dir = "#{@orig_dir}/files"
+			if !File.directory?(orig_dir)
+				orig_dir = @orig_dir
+			end
+
 			# TODO: test that different files with the same name do not get overwritten
 			rel_dir = File.dirname(file)
 			dest_dir = "#{@work_dir}/files/#{rel_dir}/"
+
 			FileUtils.mkdir_p(dest_dir)
-			FileUtils.cp("#{@orig_dir}/files/#{file}", dest_dir)
+			FileUtils.cp("#{orig_dir}/#{file}", dest_dir)
 		end
 	end
 
