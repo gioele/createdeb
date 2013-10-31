@@ -23,7 +23,7 @@ class Createdeb::Engine
 		@debdesc = Createdeb::Debdesc.new(@options[:input_file], @log)
 
 		@tmp_dir = Dir.mktmpdir('createdeb-')
-		@work_dir = @tmp_dir + "/" + source_pkg + '-' + version
+		@work_dir = @tmp_dir + "/" + pkg_name + '-' + version
 		FileUtils.mkdir_p(@work_dir)
 	end
 
@@ -61,7 +61,8 @@ class Createdeb::Engine
 			patch = ""
 			IO.popen(diff_cmd.join(' ')) { |io| patch = io.read }
 
-			patch.sub!("#{@pkg}/diff/", '').sub!("#{@pkg}/diff/", '')
+			prefix = @options[:input_file].sub('.debdesc', '') + '/diff/'
+			patch.sub!(prefix, '').sub!(prefix, '')
 
 			FileUtils.mkdir_p(File.dirname(patch_path))
 			File.open(patch_path, "w") { |file| file << patch }
@@ -101,19 +102,19 @@ class Createdeb::Engine
 
 		File.open("#{maintscripts_dir}/postinst", "w") do |f|
 			f << "#!/bin/sh\n"
-			f << @to_diff.map { |d| "patch -p0 -i /usr/share/#{@pkg}/patches/#{d.simple_value}.diff\n" }
+			f << @to_diff.map { |d| "patch -p0 -i /usr/share/#{pkg_name}/patches/#{d.simple_value}.diff\n" }
 		end
 
 		File.open("#{maintscripts_dir}/prerm", "w") do |f|
 			f << "#!/bin/sh\n"
-			f << @to_diff.map { |d| "patch -R -p0 -i /usr/share/#{@pkg}/patches/#{d.simple_value}.diff\n" }
+			f << @to_diff.map { |d| "patch -R -p0 -i /usr/share/#{pkg_name}/patches/#{d.simple_value}.diff\n" }
 		end
 	end
 
 	def create_install_file!
 		File.open("#{@work_dir}/debian/install", "w") do |f|
 			f << @to_copy.map { |c| val = c.pair_value; "files/#{val.first} #{val.last}\n" }
-			f << @to_diff.map { |d| patch = "#{d.simple_value}.diff" ; "patches/#{patch} /usr/share/#{@pkg}/patches/#{File.dirname(patch)}\n" }
+			f << @to_diff.map { |d| patch = "#{d.simple_value}.diff" ; "patches/#{patch} /usr/share/#{pkg_name}/patches/#{File.dirname(patch)}\n" }
 		end
 	end
 
@@ -140,7 +141,7 @@ class Createdeb::Engine
 
 			f << "\n"
 
-			f << "Package: #{@pkg}\n"
+			f << "Package: #{pkg_name}\n"
 			f << "Architecture: #{target_arch}\n"
 			f << "Pre-Depends: #{@debdesc.field('Pre-Depends').folded_value}\n" unless @to_diff.empty?
 			f << "Depends: #{@debdesc.field('Depends').folded_value}\n"
@@ -174,7 +175,7 @@ class Createdeb::Engine
 	end
 
 	def move_package!
-		base_name = @pkg + '_' + version
+		base_name = pkg_name + '_' + version
 
 		deb_name = "#{base_name}_#{target_arch}.deb"
 		changes_name = "#{base_name}_#{build_arch}.changes"
@@ -210,8 +211,12 @@ class Createdeb::Engine
 		end
 	end
 
+	def pkg_name
+		return @debdesc.field('Package').simple_value || @pkg
+	end
+
 	def source_pkg
-		return @pkg
+		return pkg_name
 	end
 
 	def version
