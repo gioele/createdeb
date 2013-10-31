@@ -143,9 +143,11 @@ class Createdeb::Engine
 
 			f << "Package: #{pkg_name}\n"
 			f << "Architecture: #{target_arch}\n"
-			f << "Pre-Depends: #{@debdesc.field('Pre-Depends').folded_value}\n" unless @to_diff.empty?
-			f << "Depends: #{@debdesc.field('Depends').folded_value}\n"
 			f << "Description: #{description}\n"
+
+			%w{Pre-Depends Depends Recommends Suggests Enhances}.each do |field|
+				f << "#{field}: #{@debdesc.field(field).folded_value}\n" unless !@debdesc.has_field(field)
+			end
 		end
 	end
 
