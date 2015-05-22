@@ -48,7 +48,7 @@ class Createdeb::Debdesc
 
 			if in_field
 				@log.debug "completed field #{name.inspect}"
-				@fields << Field.new(name, prev_lines)
+				@fields << Field.new(name, prev_lines, @log)
 
 				in_field = false
 				name = nil
@@ -80,7 +80,7 @@ class Createdeb::Debdesc
 		fields = fields(field_name)
 
 		if fields.empty?
-			return Field.new(field_name, nil)
+			return Field.new(field_name, nil, @log)
 		end
 
 		# TODO: check unique
@@ -90,7 +90,7 @@ class Createdeb::Debdesc
 
 	def add_to_field_folded(field_name, value, separator)
 		if !has_field(field_name)
-			@fields << Field.new(field_name, [value])
+			@fields << Field.new(field_name, [value], @log)
 			return
 		end
 
@@ -100,15 +100,18 @@ class Createdeb::Debdesc
 	end
 
 	class Field
-		def initialize(name, lines)
+		def initialize(name, lines, log)
 			@name = name
 			@lines = lines
+			@log = log
 		end
 
 		attr_reader :name
 		attr_reader :lines
 
 		def simple_value
+			@log.debug "Field #{@name} is composed of #{lines.count} lines."
+
 			if lines.nil?
 				return nil
 			end
@@ -129,6 +132,8 @@ class Createdeb::Debdesc
 		end
 
 		def folded_value
+			@log.debug "Field #{@name} is composed of #{lines.count} lines."
+
 			if lines.nil?
 				return nil
 			end
@@ -137,6 +142,8 @@ class Createdeb::Debdesc
 		end
 
 		def multiline_value
+			@log.debug "Field #{@name} is composed of #{lines.count} lines: #{lines.inspect}"
+
 			first_line = lines.first.strip
 			other_lines = lines[1..-1]
 
