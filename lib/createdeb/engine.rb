@@ -65,7 +65,7 @@ class Createdeb::Engine
 			patch.sub!(prefix, '').sub!(prefix, '')
 
 			FileUtils.mkdir_p(File.dirname(patch_path))
-			File.open(patch_path, "w") { |file| file << patch }
+			File.open(patch_path, "w") { |f| f << patch }
 		end
 	end
 
