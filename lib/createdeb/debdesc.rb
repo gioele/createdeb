@@ -7,7 +7,7 @@ class Createdeb::Debdesc
 	def initialize(filename_or_content, log)
 		if File.exists?(filename_or_content)
 			@filename = filename_or_content
-			@content = File.open(@filename).lines.to_a
+			@content = File.open(@filename).each_line.to_a
 		else
 			@filename = nil
 			@content = filename_or_content.split("\n")
