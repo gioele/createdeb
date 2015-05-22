@@ -102,8 +102,8 @@ class Createdeb::Engine
 				raise "Cannot mix postinst/prerm scripts and Diff directives"
 			end
 
-			postinst_script = "#!/bin/sh\n" + @to_diff.map { |d| "patch -p0 -i /usr/share/#{pkg_name}/patches/#{d.simple_value}.diff\n" }.join('')
-			prerm_script    = "#!/bin/sh\n" + @to_diff.map { |d| "patch -R -p0 -i /usr/share/#{pkg_name}/patches/#{d.simple_value}.diff\n" }.join('')
+			postinst_script = "#!/bin/sh\n" + @to_diff.map { |d| "patch -p0 -i /usr/share/#{pkg_name}/patches/#{d.simple_value.sub(%r{^/}, '')}.diff\n" }.join('')
+			prerm_script    = "#!/bin/sh\n" + @to_diff.map { |d| "patch -R -p0 -i /usr/share/#{pkg_name}/patches/#{d.simple_value.sub(%r{^/}, '')}.diff\n" }.join('')
 
 			@debdesc.add_to_field_folded('Pre-Depends', 'patch', ',')
 		end
@@ -129,8 +129,8 @@ class Createdeb::Engine
 
 	def create_install_file!
 		File.open("#{@work_dir}/debian/install", "w") do |f|
-			f << @to_copy.map { |c| val = c.pair_value; "files/#{val.first} #{val.last}\n" }
-			f << @to_diff.map { |d| patch = "#{d.simple_value}.diff" ; "patches/#{patch} /usr/share/#{pkg_name}/patches/#{File.dirname(patch)}\n" }
+			f << @to_copy.map { |c| val = c.pair_value; "files/#{val.first} #{val.last}\n" }.join('')
+			f << @to_diff.map { |d| patch = "#{d.simple_value.sub(%r{^/}, '')}.diff" ; "patches/#{patch} /usr/share/#{pkg_name}/patches/#{File.dirname(patch)}\n" }.join('')
 		end
 	end
 
