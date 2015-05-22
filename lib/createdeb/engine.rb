@@ -256,7 +256,7 @@ class Createdeb::Engine
 	end
 
 	def description
-		return @debdesc.field('Description').multiline_value # FIXME: check with multiple lines
+		return @debdesc.field('Description').multiline_value.first # FIXME: check with multiple lines
 	end
 
 	def target_arch
