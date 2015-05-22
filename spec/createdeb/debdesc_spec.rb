@@ -3,10 +3,18 @@
 
 require 'spec_helper'
 
+require 'tmpdir'
+require 'tempfile'
+
 describe Createdeb::Debdesc do
+	before(:all) do
+		tempfile = File.join(Dir.tmpdir, Dir::Tmpname.make_tmpname('createdeb-', 'x.log'))
+		@log = Logger.new(tempfile)
+	end
+
 	it "parses simple fields" do
 		content = "A: a\nB: b"
-		d = Createdeb::Debdesc.new(content, Logger.new("/dev/null"))
+		d = Createdeb::Debdesc.new(content, @log)
 
 		expect(d.field('A').simple_value).to eq('a')
 		expect(d.field('B').simple_value).to eq('b')
@@ -14,7 +22,7 @@ describe Createdeb::Debdesc do
 
 	it "parses folded fields" do
 		content = "A: a\n  b\n c\nB: d"
-		d = Createdeb::Debdesc.new(content, Logger.new("/dev/null"))
+		d = Createdeb::Debdesc.new(content, @log)
 
 		expect(d.field('A').folded_value).to eq("a b c")
 		expect(d.field('B').folded_value).to eq('d')
@@ -22,7 +30,7 @@ describe Createdeb::Debdesc do
 
 	it "parses multiline fields" do
 		content = "A: a\n b\n  c\n d\nB: e"
-		d = Createdeb::Debdesc.new(content, Logger.new("/dev/null"))
+		d = Createdeb::Debdesc.new(content, @log)
 
 		expect(d.field('A').multiline_value).to eq(['a', "b\n c\nd\n"])
 		expect(d.field('B').multiline_value).to eq(['e', ''])
@@ -30,7 +38,7 @@ describe Createdeb::Debdesc do
 
 	it "ignores comments" do
 		content = "#A: a\nB: b\n#C: c"
-		d = Createdeb::Debdesc.new(content, Logger.new("/dev/null"))
+		d = Createdeb::Debdesc.new(content, @log)
 
 		expect(d.fields('A')).to be_empty
 		expect(d.field('B').lines).to eq([" b"])
@@ -39,7 +47,7 @@ describe Createdeb::Debdesc do
 
 	it "allows fields to be repeated" do
 		content = "A: a\nA: b\nA: c"
-		d = Createdeb::Debdesc.new(content, Logger.new("/dev/null"))
+		d = Createdeb::Debdesc.new(content, @log)
 
 		expect(d.fields('A')).to have(3).fields
 		expect(d.fields('A')[0].simple_value).to eq('a')
