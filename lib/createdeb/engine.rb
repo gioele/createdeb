@@ -98,12 +98,20 @@ class Createdeb::Engine
 		postrm_script   = user_postrm_script.multiline_value[1] unless user_postrm_script.nil?
 
 		if !@to_diff.empty?
-			if !postinst_script.nil? && !prerm_script.nil?
-				raise "Cannot mix postinst/prerm scripts and Diff directives"
+			postinst_script_diff = "#!/bin/sh\n" + @to_diff.map { |d| "patch -p0 -i /usr/share/#{pkg_name}/patches/#{d.simple_value.sub(%r{^/}, '')}.diff\n" }.join('')
+			prerm_script_diff    = "#!/bin/sh\n" + @to_diff.map { |d| "patch -R -p0 -i /usr/share/#{pkg_name}/patches/#{d.simple_value.sub(%r{^/}, '')}.diff\n" }.join('')
+
+			if postinst_script.nil?
+				postinst_script = postinst_script_diff
+			else
+				postinst_script = postinst_script_diff + "\n\n" + postinst_script
 			end
 
-			postinst_script = "#!/bin/sh\n" + @to_diff.map { |d| "patch -p0 -i /usr/share/#{pkg_name}/patches/#{d.simple_value.sub(%r{^/}, '')}.diff\n" }.join('')
-			prerm_script    = "#!/bin/sh\n" + @to_diff.map { |d| "patch -R -p0 -i /usr/share/#{pkg_name}/patches/#{d.simple_value.sub(%r{^/}, '')}.diff\n" }.join('')
+			if prerm_script.nil?
+				prerm_script = prerm_script_diff
+			else
+				prerm_script = prerm_script_diff + "\n\n" + postinst_script
+			end
 
 			@debdesc.add_to_field_folded('Pre-Depends', 'patch', ',')
 		end
