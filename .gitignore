@@ -1,4 +1,6 @@
-/.bundle/
+/bin
+/pkg
+
 /Gemfile.lock
 
 *.debdesc
